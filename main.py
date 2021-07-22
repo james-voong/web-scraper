@@ -4,29 +4,24 @@ import time
 from bs4 import BeautifulSoup
 from reportlab.pdfgen.canvas import Canvas
 
-url = 'https://novelfull.com/battle-through-the-heavens/chapter-1-genius-no-more.html'
-response = requests.get(url)
+whitelist = ['p']
 
-soup = BeautifulSoup(response.text, "html.parser")
+url = 'https://kisslightnovels.info/novel/battle-through-the-heavens-light-novel-free/battle-through-the-heavens-chapter-'
+for chapter_num in range(1, 3):
+    response = requests.get(f'{url}{chapter_num}/')
+    soup = BeautifulSoup(response.text, "html.parser")
 
-whitelist = [
-  'p'
-]
+    # Get all p tags as text.
+    text_elements = [t for t in soup.find_all(text=True) if t.parent.name in whitelist]
+    endpoint = len(text_elements) - 26
 
-# Get all p tags as text.
-text_elements = [t for t in soup.find_all(text=True) if t.parent.name in whitelist]
+    text_elements = text_elements[2:endpoint]
+    chapter_name = text_elements[0].replace(':', ' -')
 
-endpoint = len(text_elements) - 1
-text_elements = text_elements[0:endpoint]
+    # for index, value in enumerate(text_elements):
+        # print(f'{index} === {value}')
 
-# Split the chapter name string.
-raw_chapter_name = text_elements[0].split()
-
-# Insert a - at position 2
-raw_chapter_name.insert(2, '-')
-
-# Convert the array to a string, separated by whitespace.
-chapter_name = ' '.join(raw_chapter_name)
+    time.sleep(1)
 
 # Create the pdf
-canvas = Canvas(chapter_name)
+# canvas = Canvas(chapter_name)
