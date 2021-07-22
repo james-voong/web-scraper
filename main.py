@@ -1,27 +1,41 @@
 import requests
-import urllib.request
-import time
 from bs4 import BeautifulSoup
-from reportlab.pdfgen.canvas import Canvas
+from fpdf import FPDF
 
 whitelist = ['p']
 
 url = 'https://kisslightnovels.info/novel/battle-through-the-heavens-light-novel-free/battle-through-the-heavens-chapter-'
-for chapter_num in range(1, 3):
+start_chapter = 1
+end_chapter = 1649
+
+# How many lines to trim from the start and end.
+start_cut = 2
+end_cut = 26
+
+for chapter_num in range(start_chapter, end_chapter):
     response = requests.get(f'{url}{chapter_num}/')
     soup = BeautifulSoup(response.text, "html.parser")
 
     # Get all p tags as text.
     text_elements = [t for t in soup.find_all(text=True) if t.parent.name in whitelist]
-    endpoint = len(text_elements) - 26
+    endpoint = len(text_elements) - end_cut
 
-    text_elements = text_elements[2:endpoint]
+    text_elements = text_elements[start_cut:endpoint]
     chapter_name = text_elements[0].replace(':', ' -')
 
-    # for index, value in enumerate(text_elements):
-        # print(f'{index} === {value}')
+    pdf = FPDF()
+    pdf.add_page()
 
-    time.sleep(1)
+    pdf.add_font('ArialUnicode', '', 'arial-unicode-ms.ttf', uni=True)
+    pdf.set_font('ArialUnicode', '', 11)
 
-# Create the pdf
-# canvas = Canvas(chapter_name)
+    for index, value in enumerate(text_elements):
+        if index == 0:
+            pdf.set_font('Arial', 'B', 13)
+            pdf.write(5, value+'\n\n')
+            pdf.set_font('ArialUnicode', '', 11)
+            continue
+
+        pdf.write(5, value+'\n\n')
+
+    pdf.output(f"{chapter_name}.pdf")
